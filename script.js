@@ -1,2 +1,0 @@
- <a href='http://maps-generator.com/'>map generator</a> <script type='text/javascript' src='https://www.freevisitorcounters.com/auth.php?id=1df82288539491fa4996ba54f42143b4ae085ac3'></script>
-<script type="text/javascript" src="https://www.freevisitorcounters.com/en/home/counter/1654193/t/3"></script>
