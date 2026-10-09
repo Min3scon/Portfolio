@@ -37,6 +37,9 @@ body {
 
 a { color: inherit; text-decoration: none; }
 
+/* Blurred and faded by script.js as it scrolls up under the header. */
+.scroll-blur { transition: filter 0.1s linear, opacity 0.1s linear; }
+
 /* ---------- Header ---------- */
 .site-header {
   position: sticky;
@@ -95,7 +98,6 @@ main {
 .hero {
   padding-top: 32px;
   max-width: 700px;
-  transition: filter 0.1s linear, opacity 0.1s linear;
 }
 .hero h1 {
   margin: 0;
@@ -191,11 +193,6 @@ main {
   font-weight: 700;
   line-height: 1.4;
 }
-.card-grid.all .card-body {
-  font-size: 18px;
-  font-weight: 400;
-  padding-top: 28px;
-}
 .tags { display: flex; flex-wrap: wrap; gap: 12px; }
 .tag {
   min-width: 116px;
@@ -210,6 +207,23 @@ main {
 
 a.card { display: block; transition: transform 0.15s ease; }
 a.card:hover { transform: translateY(-4px); }
+
+/* ---------- Projects ---------- */
+/* Three across, reaching out to 16px from the window edges. */
+.card-grid.all {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px 22px;
+  margin: 0 calc(16px - var(--gutter)) 100px;
+}
+.card-grid.all .card { padding: 17px 22px 22px; }
+.card-grid.all .card-inner { gap: 17px; padding: 12px 13px 60px; }
+.card-grid.all .card-title { font-size: clamp(24px, 2.2vw, 32px); }
+.card-grid.all .card-body {
+  margin: 0 9px;
+  padding: 31px 4px 24px;
+  font-size: 16px;
+  font-weight: 600;
+}
 
 /* ---------- About ---------- */
 .about {
@@ -314,13 +328,17 @@ html.moon {
 }
 /* The header's fade would hide blocks dragged up behind it. */
 .moon .site-header { background: none; }
-.moon .hero { filter: none !important; opacity: 1 !important; }
+.moon .scroll-blur { filter: none !important; opacity: 1 !important; }
 .moon-body { will-change: transform; }
 .moon-body, .moon-body * { cursor: grab; }
 .moon-dragging, .moon-dragging * { cursor: grabbing; }
 .moon-held { z-index: 100; }
 
 /* ---------- Responsive ---------- */
+@media (max-width: 1240px) {
+  .card-grid.all { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
 @media (max-width: 900px) {
   .site-header { padding: 24px 16px 16px; flex-wrap: wrap; }
   .path, .nav a { font-size: 24px; }
@@ -332,6 +350,13 @@ html.moon {
   .card { padding: 14px; }
   .card-body { font-size: 20px; padding-top: 24px; min-height: 0; }
   .tag { font-size: 24px; min-width: 90px; }
+  .card-grid.all { margin-bottom: 0; }
+  .card-grid.all .card { padding: 14px; }
+  .card-grid.all .card-inner { padding-bottom: 32px; }
+}
+
+@media (max-width: 700px) {
+  .card-grid.all { grid-template-columns: minmax(0, 1fr); }
 }
 
 @media (max-width: 520px) {
@@ -344,6 +369,6 @@ html.moon {
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
-  .hero, a.card { transition: none; }
+  .scroll-blur, a.card { transition: none; }
   .path .caret { animation: none; }
 }
