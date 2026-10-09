@@ -142,10 +142,11 @@ main {
 .view-all:hover { text-decoration: underline; }
 
 .page-title {
-  margin: 32px 0 24px;
+  margin: 28px 0 24px;
   font-size: clamp(44px, 6vw, 69px);
   font-weight: 400;
   line-height: 1.1;
+  transition: filter 0.1s linear, opacity 0.1s linear;
 }
 
 /* ---------- Cards ---------- */
@@ -191,10 +192,27 @@ main {
   font-weight: 700;
   line-height: 1.4;
 }
+/* Projects page: three smaller cards a row, running wider than the page gutter. */
+.card-grid.all {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px 20px;
+  margin: 0 calc(15px - var(--gutter));
+  padding-bottom: 100px;
+}
+.card-grid.all .card {
+  padding: 18px 24px 22px;
+  border-radius: 28px;
+  transition: filter 0.1s linear, opacity 0.1s linear;
+}
+.card-grid.all .card-inner { gap: 15px; padding: 11px 24px 60px 13px; border-radius: 24px; }
+.card-grid.all .card-title { font-size: 32px; border-radius: 24px; }
 .card-grid.all .card-body {
-  font-size: 18px;
-  font-weight: 400;
-  padding-top: 28px;
+  min-height: 193px;
+  margin-left: 5px;
+  padding: 33px 4px 0 3px;
+  border-radius: 28px;
+  font-size: 15.5px;
+  line-height: 1.45;
 }
 .tags { display: flex; flex-wrap: wrap; gap: 12px; }
 .tag {
@@ -314,13 +332,19 @@ html.moon {
 }
 /* The header's fade would hide blocks dragged up behind it. */
 .moon .site-header { background: none; }
-.moon .hero { filter: none !important; opacity: 1 !important; }
+.moon .hero,
+.moon .page-title,
+.moon .card-grid.all .card { filter: none !important; opacity: 1 !important; }
 .moon-body { will-change: transform; }
 .moon-body, .moon-body * { cursor: grab; }
 .moon-dragging, .moon-dragging * { cursor: grabbing; }
 .moon-held { z-index: 100; }
 
 /* ---------- Responsive ---------- */
+@media (max-width: 1120px) {
+  .card-grid.all { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
 @media (max-width: 900px) {
   .site-header { padding: 24px 16px 16px; flex-wrap: wrap; }
   .path, .nav a { font-size: 24px; }
@@ -334,16 +358,22 @@ html.moon {
   .tag { font-size: 24px; min-width: 90px; }
 }
 
+@media (max-width: 760px) {
+  .card-grid.all { grid-template-columns: 1fr; }
+}
+
 @media (max-width: 520px) {
   .nav { gap: 10px; }
   .path, .nav a { font-size: 20px; }
   .site-footer { flex-wrap: wrap; gap: 12px 20px; padding: 16px 20px; font-size: 17px; }
   .views { margin-left: 0; }
   .view-all { margin-right: 0; }
+  .card-grid.all .card { padding: 14px; }
+  .card-grid.all .card-title { font-size: 26px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
-  .hero, a.card { transition: none; }
+  .hero, .page-title, .card-grid.all .card, a.card { transition: none; }
   .path .caret { animation: none; }
 }
