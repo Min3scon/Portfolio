@@ -1,15 +1,22 @@
 // Address the contact form sends to. Set this to your email before publishing.
 const CONTACT_EMAIL = "";
 
-// Blur and fade the hero as it scrolls up under the header.
-const hero = document.querySelector(".hero");
-if (hero && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
+// Blur and fade blocks as they scroll up under the header: the hero on the
+// homepage, the title and each card on the projects page. A block starts
+// blurring once its top passes the header's bottom edge.
+const header = document.querySelector(".site-header");
+const blurBlocks = document.querySelectorAll(".scroll-blur");
+if (header && blurBlocks.length && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
   const update = () => {
-    const progress = Math.min(window.scrollY / 220, 1);
-    hero.style.filter = progress > 0 ? `blur(${progress * 4}px)` : "";
-    hero.style.opacity = String(1 - progress * 0.6);
+    const edge = header.getBoundingClientRect().bottom;
+    for (const block of blurBlocks) {
+      const progress = Math.min(Math.max((edge - block.getBoundingClientRect().top) / 220, 0), 1);
+      block.style.filter = progress > 0 ? `blur(${progress * 4}px)` : "";
+      block.style.opacity = String(1 - progress * 0.6);
+    }
   };
   window.addEventListener("scroll", update, { passive: true });
+  window.addEventListener("resize", update);
   update();
 }
 
