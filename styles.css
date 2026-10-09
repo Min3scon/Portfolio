@@ -233,24 +233,33 @@ a.card:hover { transform: translateY(-4px); }
 .about {
   display: grid;
   grid-template-columns: 280px 1fr;
-  gap: 32px;
+  gap: 21px 32px;
   align-items: start;
   padding-bottom: 48px;
 }
 .about .page-title { grid-column: 1 / -1; margin-bottom: 0; }
-.about-side { display: flex; flex-direction: column; gap: 20px; }
+.about-side {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  transition: filter 0.1s linear, opacity 0.1s linear;
+}
 .about-side img {
   width: 100%;
   height: auto;
   aspect-ratio: 1;
   object-fit: cover;
-  object-position: center 80%;
+  object-position: center bottom;
   display: block;
 }
+.about-side .github-link { font-size: 15px; font-weight: 600; }
+.about-side .github-link svg { width: 46px; height: 46px; }
+/* The text starts a little above the photo and runs wider than the page gutter. */
+.about-text { max-width: 1040px; margin: -28px calc(30px - var(--gutter)) 0 0; }
 .about-text p {
   margin: 0 0 1.4em;
-  font-size: clamp(20px, 2.2vw, 30px);
-  line-height: 1.5;
+  font-size: clamp(20px, 2.3vw, 33px);
+  transition: filter 0.1s linear, opacity 0.1s linear;
 }
 
 /* ---------- Contact ---------- */
@@ -334,7 +343,9 @@ html.moon {
 .moon .site-header { background: none; }
 .moon .hero,
 .moon .page-title,
-.moon .card-grid.all .card { filter: none !important; opacity: 1 !important; }
+.moon .card-grid.all .card,
+.moon .about-side,
+.moon .about-text p { filter: none !important; opacity: 1 !important; }
 .moon-body { will-change: transform; }
 .moon-body, .moon-body * { cursor: grab; }
 .moon-dragging, .moon-dragging * { cursor: grabbing; }
@@ -350,6 +361,7 @@ html.moon {
   .path, .nav a { font-size: 24px; }
   .about { grid-template-columns: 1fr; }
   .about-side { max-width: 280px; }
+  .about-text { margin: 0; }
   .contact { grid-template-columns: 1fr; padding-top: 16px; }
   .contact h1 { padding-left: 0; line-height: 1.1; }
   .section-head { margin-top: 64px; }
@@ -374,6 +386,6 @@ html.moon {
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
-  .hero, .page-title, .card-grid.all .card, a.card { transition: none; }
+  .hero, .page-title, .card-grid.all .card, .about-side, .about-text p, a.card { transition: none; }
   .path .caret { animation: none; }
 }

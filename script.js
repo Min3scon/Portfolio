@@ -2,9 +2,9 @@
 const CONTACT_EMAIL = "";
 
 // Blur and fade blocks as they scroll up under the header: the hero on the
-// home page, the title and each project card on the projects page.
+// home page, then each page's title, project cards, photo and paragraphs.
 const header = document.querySelector(".site-header");
-const fading = [...document.querySelectorAll(".hero, .page-title, .card-grid.all .card")];
+const fading = [...document.querySelectorAll(".hero, .page-title, .card-grid.all .card, .about-side, .about-text p")];
 if (header && fading.length && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
   const update = () => {
     const edge = header.getBoundingClientRect().bottom;
