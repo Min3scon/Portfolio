@@ -1,0 +1,17 @@
+body {
+  background-color: #080e49;
+  color: #ffff;
+}
+
+h1 {
+  margin-left: 10px;
+}
+
+p{
+     font-size: 50px;
+     margin-left: 50px;
+}
+
+.highlight-text {
+  color: #ff751f;
+}
