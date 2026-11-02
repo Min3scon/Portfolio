@@ -1,15 +1,265 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <link rel="stylesheet" href="Style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="Style.css">
+  <script src="script.js" defer></script>
 </head>
-<h1><a href="index.html" class="home-link"><span class="highlight-text">~</span></a>/<span class="highlight-text">Projects</span>/
+<body>
+
+  <h1>
+    <a href="index.html" class="home-link"><span class="highlight-text">~</span></a>/<span class="highlight-text">Projects</span>/
     <span class="highlight-text alignRight word-spacing">
-    <a href="Projects.html">Projects</a> 
-    <a href="About.html">About</a> 
-    <a href="Contact.html" Class="custom-link">Contact</a>
-</span></h1>
-<p> <span class="highlight-text">Hey!</span> I'm Jack Davey</p>
+      <a href="Projects.html">Projects</a>
+      <a href="About.html">About</a>
+      <a href="Contact.html" class="custom-link">Contact</a>
+    </span>
+  </h1>
+
+  <h2 class="about-title">Projects</h2>
+
+  <div class="box-container project-grid">
+
+    <div class="box project-box" data-code="code-1">
+      <header class="box-header"><h2>Package Damage System</h2></header>
+      <div class="box-inner">
+        <p class="smalltext">Physics-based system that works out package damage from crashes and rough handling.</p>
+      </div>
+      <div class="pill-container">
+        <div class="pill">Unity</div>
+        <div class="pill">C#</div>
+      </div>
+    </div>
+
+    <div class="box project-box" data-code="code-2">
+      <header class="box-header"><h2>Delivery System</h2></header>
+      <div class="box-inner">
+        <p class="smalltext">Colour-matches each package to its house so players always know where to deliver.</p>
+      </div>
+      <div class="pill-container">
+        <div class="pill">Unity</div>
+        <div class="pill">C#</div>
+      </div>
+    </div>
+
+    <div class="box project-box" data-info="info-tiro">
+      <header class="box-header"><h2>Tiro</h2></header>
+      <div class="box-inner">
+        <p class="smalltext">Hold a key, speak, let go. Fast dictation for Windows and Mac that runs fully offline.</p>
+      </div>
+      <div class="pill-container">
+        <div class="pill">Python</div>
+        <div class="pill">C++</div>
+      </div>
+    </div>
+
+    <div class="box project-box" data-info="info-hindsight">
+      <header class="box-header"><h2>Hindsight</h2></header>
+      <div class="box-inner">
+        <p class="smalltext">Blender add-on that gives every sculpted object its own scrubbable history.</p>
+      </div>
+      <div class="pill-container">
+        <div class="pill">Blender</div>
+        <div class="pill">Python</div>
+      </div>
+    </div>
+
+    <div class="box box-soon">
+      <header class="box-header"><h2>Coming Soon</h2></header>
+      <div class="box-inner">
+        <p class="smalltext">New project in progress. Check back soon.</p>
+      </div>
+      <div class="pill-container">
+        <div class="pill">TBC</div>
+      </div>
+    </div>
+
+    <div class="box box-soon">
+      <header class="box-header"><h2>Coming Soon</h2></header>
+      <div class="box-inner">
+        <p class="smalltext">New project in progress. Check back soon.</p>
+      </div>
+      <div class="pill-container">
+        <div class="pill">TBC</div>
+      </div>
+    </div>
+
+  </div>
+
+<script type="text/plain" id="code-1">
+using UnityEngine;
+
+public class PackageDamage : MonoBehaviour
+{
+    [SerializeField] private Rigidbody body;
+    [SerializeField] private float minimumDamageThreshold = 2f;
+    [SerializeField] private float collisionDamageScale = 5f;
+
+    [Header("Destroy Penalty")]
+    [SerializeField] private float destroyPenalty = 20f;
+    [SerializeField] private Money money;
+
+    private Health health;
+    private bool handledDeath;
+
+    private void Awake()
+    {
+        if (body == null) body = GetComponent<Rigidbody>();
+        health = GetComponent<Health>();
+
+        if (money == null)
+            money = FindFirstObjectByType<Money>();
+    }
+
+    private void OnEnable()
+    {
+        if (health != null) health.OnDeath += OnPackageDeath;
+    }
+
+    private void OnDisable()
+    {
+        if (health != null) health.OnDeath -= OnPackageDeath;
+    }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (health == null) return;
+        if (collision.contactCount == 0) return;
+
+        Vector3 normal = collision.GetContact(0).normal;
+        float normalImpactSpeed = Mathf.Abs(Vector3.Dot(collision.relativeVelocity, normal));
+
+        if (normalImpactSpeed <= minimumDamageThreshold) return;
+
+        float damage = (normalImpactSpeed - minimumDamageThreshold) * collisionDamageScale;
+        health.TakeDamage(damage);
+    }
+
+    private void OnPackageDeath()
+    {
+        if (handledDeath) return;
+        handledDeath = true;
+
+        if (money != null)
+            money.Remove(destroyPenalty);
+
+        PackageSpawner.NotifyPackageDeliveredOrDestroyed();
+        Destroy(gameObject);
+    }
+}
+</script>
+
+<script type="text/plain" id="code-2">
+using UnityEngine;
+
+public class PackageDelivery : MonoBehaviour
+{
+    [SerializeField] private PackageColor requiredColor;
+    [SerializeField] private float maxPay = 100f;
+    [SerializeField] private float wrongPackagePenalty = 25f;
+    [SerializeField] private Money money;
+
+    private void OnTriggerEnter(Collider other)
+    {
+        PackageColorTag colorTag = other.GetComponent<PackageColorTag>();
+        if (colorTag == null) return;
+
+        bool correct = (colorTag.packageColor == requiredColor);
+
+        if (money != null)
+        {
+            if (correct)
+            {
+                Health health = other.GetComponent<Health>();
+                float payMultiplier = (health != null) ? health.HealthPercent : 1f;
+                float pay = maxPay * payMultiplier;
+                money.Add(pay);
+            }
+            else
+            {
+                money.Remove(wrongPackagePenalty);
+            }
+        }
+
+        PackageSpawner.NotifyPackageDeliveredOrDestroyed();
+        Destroy(other.gameObject);
+    }
+}
+</script>
+
+  <template id="info-tiro">
+    <h3>What it does</h3>
+    <p>Tiro is a push-to-talk dictation app for Windows and Mac. Hold your dictation key anywhere, talk naturally, and the text streams into whatever app you're using, with punctuation and capitals. Everything runs on your own computer, so nothing you say is sent anywhere.</p>
+    <h3>Highlights</h3>
+    <ul>
+      <li>Uses NVIDIA's Parakeet TDT speech model, running locally</li>
+      <li>A correction pass learns the names and terms you use, without rewriting what you said</li>
+      <li>The rest of your words land about 0.05 s after you let go of the key</li>
+      <li>Installer checks your CPU, GPU and RAM and picks the fastest setup</li>
+      <li>Updates itself safely, with each download checked against a signed list</li>
+    </ul>
+    <h3>Main files</h3>
+    <ul>
+      <li><strong>tiro/app.py</strong>: the main app and tray icon</li>
+      <li><strong>tiro/hotkey.py</strong>: listens for the dictation key</li>
+      <li><strong>tiro/audio.py</strong> and <strong>tiro/vad.py</strong>: microphone input and voice detection</li>
+      <li><strong>tiro/asr.py</strong> and <strong>tiro/stream.py</strong>: speech recognition and live streaming</li>
+      <li><strong>tiro/injector.py</strong>: types the text into the focused app</li>
+      <li><strong>core/</strong>: the C++ engine</li>
+    </ul>
+    <a class="info-button" href="https://github.com/Min3scon/tiro" target="_blank">View on GitHub ➜</a>
+  </template>
+
+  <template id="info-hindsight">
+    <h3>What it does</h3>
+    <p>Hindsight is a Blender add-on that gives every sculpted object its own history. Drag a slider to go back through up to 10,000 steps, look, and drag forward again. The history is saved with your file.</p>
+    <h3>Highlights</h3>
+    <ul>
+      <li>Each sculpt stroke is one step, storing only the vertices it moved (about 12 KB on a 100k mesh)</li>
+      <li>Jumping to any step is exact, bit for bit</li>
+      <li>Optional object recording, including Edit Mode step by step</li>
+      <li>A global timeline puts every object's steps in the order you made them</li>
+      <li>Movie Mode plays the history back so you can render a timelapse</li>
+    </ul>
+    <h3>Main files</h3>
+    <ul>
+      <li><strong>hindsight/core/</strong>: the history engine (deltas, storage, file format) in Python and numpy</li>
+      <li><strong>hindsight/bl/</strong>: the Blender side (recorder, slider, panels, saving)</li>
+      <li><strong>tests/</strong>: headless tests that run inside every installed Blender version</li>
+      <li><strong>site/</strong>: the project website and in-browser demo</li>
+    </ul>
+    <a class="info-button" href="https://github.com/Min3scon/Hindsight" target="_blank">View on GitHub ➜</a>
+  </template>
+
+  <div class="code-modal" id="code-modal">
+    <div class="code-window">
+      <div class="code-header">
+        <h2 id="code-title"></h2>
+        <button class="code-close" id="code-close" aria-label="Close">✕</button>
+      </div>
+      <pre class="code-body" id="code-body"><code id="code-content"></code></pre>
+      <div class="info-body" id="info-body"></div>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <div class="footer-left">
+      <span>© 2026 Jack Davey</span>
+    </div>
+    <div class="footer-right">
+      <span><span id="view-count">...</span> Views</span>
+      <div class="about-socials">
+        <a href="https://github.com/Min3scon" class="about-social" target="_blank" aria-label="GitHub">
+          <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+        </a>
+        <a href="https://www.linkedin.com/in/jack-davey-6a9564252/" class="about-social" target="_blank" aria-label="LinkedIn">
+          <svg viewBox="0 0 16 16" fill="currentColor"><path d="M0 1.146C0 .513.526 0 1.175 0h13.65C15.474 0 16 .513 16 1.146v13.708c0 .633-.526 1.146-1.175 1.146H1.175C.526 16 0 15.487 0 14.854V1.146zm4.943 12.248V6.169H2.542v7.225h2.401zm-1.2-8.212c.837 0 1.358-.554 1.358-1.248-.015-.709-.52-1.248-1.342-1.248-.822 0-1.359.54-1.359 1.248 0 .694.521 1.248 1.327 1.248h.016zm4.908 8.212V9.359c0-.216.016-.432.08-.586.173-.431.568-.878 1.232-.878.869 0 1.216.662 1.216 1.634v3.865h2.401V9.25c0-2.22-1.184-3.252-2.764-3.252-1.274 0-1.845.7-2.165 1.193v.025h-.016a5.54 5.54 0 0 1 .016-.025V6.169h-2.4c.03.678 0 7.225 0 7.225h2.4z"/></svg>
+        </a>
+      </div>
+    </div>
+  </footer>
 
 </body>
 </html>
